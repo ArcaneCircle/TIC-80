@@ -1,0 +1,52 @@
+name: Release Webxdc
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - "v*.*.*"
+
+env:
+  BUILD_TYPE: MinSizeRel
+
+jobs:
+
+  # === WEBXDC ===
+  webxdc:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: mymindstorm/setup-emsdk@v14
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: Build all
+        run: |
+          cd build
+          emcmake cmake -DBUILD_SDLGPU=On -DBUILD_STATIC=On -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_WITH_ALL=On -DBUILD_PRO=True -DBUILD_TOUCH_INPUT=On -DBUILD_FOR_WEBXDC=On .. --fresh
+          cmake --build . --config $BUILD_TYPE --parallel
+          zip -9 -j tic80.xdc --exclude "./*~" -- bin/tic80.js bin/tic80.wasm webxdc/*
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            Auto-generated release
+          prerelease: ${{ contains(github.event.ref, '-beta') }}
+          fail_on_unmatched_files: true
+          files: ./build/*.xdc
