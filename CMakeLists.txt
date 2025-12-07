@@ -41,6 +41,7 @@ set(BUILD_WITH_ALL_DEFAULT OFF)
 
 option(BUILD_STATIC "Static runtime" ${BUILD_STATIC_DEFAULT})
 option(BUILD_WITH_ALL "Build all supported scripts" ${BUILD_WITH_ALL_DEFAULT})
+option(BUILD_FOR_WEBXDC "Enable Webxdc mode when building with Emscripten" OFF)
 option(BUILD_SDL "SDL Enabled" ON)
 option(BUILD_SDLGPU "SDL GPU Enabled" OFF)
 option(BUILD_LIBRETRO "libretro Enabled" ${BUILD_LIBRETRO_DEFAULT})
